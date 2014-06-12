@@ -33,6 +33,7 @@ Loop
 	;Main Loop
 	if Counter != 0
 	{
+		TrayTip
 		;WinGet, EVEWindow, List, ahk_class triuiScreen
 		WinGet, EVEWindow, List, EVE - \w+
 		Counter = 0
