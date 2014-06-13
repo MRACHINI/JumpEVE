@@ -34,7 +34,7 @@ Loop
 		if Counter != 0
 		{
 			;WinGet, EVEWindow, List, ahk_class triuiScreen
-			WinGet, EVEWindow, List, EVE - \w+
+			WinGet, EVEWindow, List, ^EVE - .+
 			Counter = 0
 		}
 		Loop, %EVEWindow%
