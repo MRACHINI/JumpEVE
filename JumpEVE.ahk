@@ -13,48 +13,48 @@ SetWinDelay 0
 SetKeyDelay -1
 SetMouseDelay -1
 SetBatchLines -1
+#Persistent
 
 
-TrayTip, JumpEVE Controls, F6 to Start `nF7 to Stop `nCtrl+Alt+Shift+E to Exit
+TrayTip, JumpEVE Controls, `nF9 to Start or Stop `nCtrl+Alt+Shift+E to Exit
 SetTimer, RemoveTrayTip, 5000
-return
-RemoveTrayTip:
-SetTimer, RemoveTrayTip, Off
-TrayTip
-return
 
 ;TrayTip, My Title, Multiline`nText, 20, 17
 ;MsgBox, F6 to Start `nF7 to Stop `nCtrl+Alt+Shift+E to Exit
 
-F6::
-Main:
+
+global StartBoolean = 0
 Loop
 {
-	;Main Loop
-	if Counter != 0
+	Sleep, 100
+	;Trayloop += 1
+	;TrayTip, Trayloop, %Trayloop%
+	while StartBoolean = 1
 	{
-		TrayTip
-		;WinGet, EVEWindow, List, ahk_class triuiScreen
-		WinGet, EVEWindow, List, EVE - \w+
-		Counter = 0
+		if Counter != 0
+		{
+			;WinGet, EVEWindow, List, ahk_class triuiScreen
+			WinGet, EVEWindow, List, EVE - \w+
+			Counter = 0
+		}
+		Loop, %EVEWindow%
+		{
+			;MsgBox, %A_index%
+			Sleep, 100
+			this_id := EVEWindow%A_Index%
+			WinActivate, ahk_id %this_id%
+			WinGetClass, this_class, ahk_id %this_id%
+			WinGetTitle, this_title, ahk_id %this_id%
+			WinGetPos, , , Width, Height, ahk_id %this_id%
+			;MsgBox, %this_title%
+			Start(Width, Height)
+		}
+		;EVEWindow =
+		;EVEWindow :=""
+		;Sleep, 100
 	}
-	Loop, %EVEWindow%
-	{
-		;MsgBox, %A_index%
-		Sleep, 100
-		this_id := EVEWindow%A_Index%
-		WinActivate, ahk_id %this_id%
-		WinGetClass, this_class, ahk_id %this_id%
-		WinGetTitle, this_title, ahk_id %this_id%
-		WinGetPos, , , Width, Height, ahk_id %this_id%
-		;MsgBox, %this_title%
-		Start(Width, Height)
-	}
-	;EVEWindow =
-	;EVEWindow :=""
-	;Sleep, 100
 }
-Return
+return
 
 Start(Width, Height){
 	;MsgBox, %Width%x%Height%
@@ -146,12 +146,39 @@ OverviewFocus(){
 	Send, {Space Up}{RAlt Up}
 }
 
-F7::
+;main activation key to toggle variable "StartBoolean"
+F9::
+Main:
+if (StartBoolean = 0){
+	StartBoolean = 1
+	TrayTip, JumpEVE Started, `nF9 to Start or Stop
+	SetTimer, RemoveTrayTip, 5000
+	return
+}else if (StartBoolean = 1){
+	StartBoolean = 0
+	Stop()
+}
+return
+
+;turn off tray tips
+RemoveTrayTip:
+SetTimer, RemoveTrayTip, Off
+TrayTip
+return
+
+;Stop script
+Stop(){
 sleep 100
 Reload
 Sleep 100
 MsgBox, The script could not be reloaded.
-return
+;return
+}
 
+;Exit or reload script
 ^!+E::
-ExitApp
+MsgBox, 4,, Would you like to Exit?
+IfMsgBox Yes
+	ExitApp
+else
+	Stop()
