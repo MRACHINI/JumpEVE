@@ -24,6 +24,8 @@ SetTimer, RemoveTrayTip, 5000
 
 
 global StartBoolean = 0
+global x0,x1,x2,x3,x4,x5,x6,x7,x8,x9,x10,x11,x12,x13,x14,x15,x16,x17,x18,x19,x20 =0
+global y0,y1,y2,y3,y4,y5,y6,y7,y8,y9,y10,y11,y12,y13,y14,y15,y16,y17,y18,y19,y20 =0
 Loop
 {
 	Sleep, 100
@@ -37,9 +39,9 @@ Loop
 			WinGet, EVEWindow, List, ^EVE - .+
 			Counter = 0
 		}
+
 		Loop, %EVEWindow%
 		{
-			;MsgBox, %A_index%
 			Sleep, 100
 			this_id := EVEWindow%A_Index%
 			WinActivate, ahk_id %this_id%
@@ -47,16 +49,21 @@ Loop
 			WinGetTitle, this_title, ahk_id %this_id%
 			WinGetPos, , , Width, Height, ahk_id %this_id%
 			;MsgBox, %this_title%
-			Start(Width, Height)
+
+			index = %A_index%
+			if Counter2 != 0
+			{
+				getOverview(index, Width, Height)
+			}
+			Start(x%index%, y%index%, Width, Height)
 		}
-		;EVEWindow =
-		;EVEWindow :=""
-		;Sleep, 100
+		Counter2 = 0
 	}
 }
 return
 
-Start(Width, Height){
+Start(x, y, Width, Height){
+	;MsgBox, %x% %y%
 	;MsgBox, %Width%x%Height%
 	;skip the image check if warping
 	CoordMode, Pixel, Relative
@@ -70,7 +77,7 @@ Start(Width, Height){
 
 		;Check for gate image
 		CoordMode, Pixel, Relative
-		ImageSearch, FoundX, FoundY, 0, 0, Width, Height, *50 Resources\GY01.png
+		ImageSearch, FoundX, FoundY, x, y, Width, Height, *50 Resources\GY01.png
 		Sleep, 10
 		If ErrorLevel = 0
 		{
@@ -80,7 +87,7 @@ Start(Width, Height){
 
 		;Check for station images
 		CoordMode, Pixel, Relative
-		ImageSearch, FoundX, FoundY, 0, 0, Width, Height, *50 Resources\SY01.png
+		ImageSearch, FoundX, FoundY, x, y, Width, Height, *50 Resources\SY01.png
 		Sleep, 10
 		If ErrorLevel = 0
 		{
@@ -144,6 +151,24 @@ OverviewFocus(){
 	Send, {RAlt Down}{Space Down}
 	Sleep, 50
 	Send, {Space Up}{RAlt Up}
+}
+
+getOverview(index, Width, Height){
+	CoordMode, Pixel, Relative
+	ImageSearch, x, y, 0, 0, Width, Height, *50 Resources\Overview.png
+	Sleep, 10
+	If ErrorLevel = 0
+	{
+		;MsgBox, %x%
+		;MsgBox, %y%
+		x%index% = %x%
+		y%index% = %y%
+		x%index% -= 10
+		y%index% +=10 
+		;MsgBox, found overview
+		;ClickJump(FoundX, FoundY)
+		;return
+	}
 }
 
 ;main activation key to toggle variable "StartBoolean"
