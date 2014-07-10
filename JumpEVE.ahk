@@ -24,8 +24,13 @@ SetTimer, RemoveTrayTip, 5000
 
 
 global StartBoolean = 0
+
 global x0,x1,x2,x3,x4,x5,x6,x7,x8,x9,x10,x11,x12,x13,x14,x15,x16,x17,x18,x19,x20 =0
+
 global y0,y1,y2,y3,y4,y5,y6,y7,y8,y9,y10,y11,y12,y13,y14,y15,y16,y17,y18,y19,y20 =0
+
+global getOverviewBoolean1,getOverviewBoolean2,getOverviewBoolean3,getOverviewBoolean4,getOverviewBoolean5,getOverviewBoolean6,getOverviewBoolean7,getOverviewBoolean8,getOverviewBoolean9,getOverviewBoolean10,getOverviewBoolean11,getOverviewBoolean12,getOverviewBoolean13,getOverviewBoolean14,getOverviewBoolean15,getOverviewBoolean16,getOverviewBoolean17,getOverviewBoolean18,getOverviewBoolean19,getOverviewBoolean20 =0
+
 Loop
 {
 	Sleep, 100
@@ -33,11 +38,11 @@ Loop
 	;TrayTip, Trayloop, %Trayloop%
 	while StartBoolean = 1
 	{
-		if Counter != 0
+		if WinGetBoolean != 0
 		{
 			;WinGet, EVEWindow, List, ahk_class triuiScreen
 			WinGet, EVEWindow, List, ^EVE - .+
-			Counter = 0
+			WinGetBoolean = 0
 		}
 
 		Loop, %EVEWindow%
@@ -47,15 +52,20 @@ Loop
 			WinActivate, ahk_id %this_id%
 			WinGetClass, this_class, ahk_id %this_id%
 			WinGetTitle, this_title, ahk_id %this_id%
-			WinGetPos, , , Width, Height, ahk_id %this_id%
+			WinGetPos, LX, LY, Width, Height, ahk_id %this_id%
 			;MsgBox, %this_title%
 
 			index = %A_index%
-			if Counter2 != 0
+			if (getOverviewBoolean%index% !=0)
 			{
-				getOverview(index, Width, Height)
-			}
+				;MsgBox, %LX% %LY% %width% %height%
+				;MsgBox, % getOverviewBoolean%index% "inside"
+				getOverview(index, LX, LY, Width, Height)
+			}else{
+			;MsgBox, % getOverviewBoolean%index% " else"
+			;MsgBox, % x%index% " " y%index% " " %Width% " " %Height%
 			Start(x%index%, y%index%, Width, Height)
+			}
 		}
 		Counter2 = 0
 	}
@@ -63,6 +73,7 @@ Loop
 return
 
 Start(x, y, Width, Height){
+	;MsgBox, %x% %y% %Width% %Height%
 	;MsgBox, %x% %y%
 	;MsgBox, %Width%x%Height%
 	;skip the image check if warping
@@ -71,13 +82,16 @@ Start(x, y, Width, Height){
 	If ErrorLevel = 1
 	{
 		OverviewFocus()
+		Sleep, 250
 		;MsgBox, not warping
 		InitialMouseMove()
 		Sleep, 250
 
+		newX := x+30
+		;MsgBox, %x% %y% %newX% %Height%
 		;Check for gate image
 		CoordMode, Pixel, Relative
-		ImageSearch, FoundX, FoundY, x, y, Width, Height, *50 Resources\GY01.png
+		ImageSearch, FoundX, FoundY, x, y, newX, Height, *50 Resources\GY01.png
 		Sleep, 10
 		If ErrorLevel = 0
 		{
@@ -153,21 +167,28 @@ OverviewFocus(){
 	Send, {Space Up}{RAlt Up}
 }
 
-getOverview(index, Width, Height){
+getOverview(index, LX, LY, Width, Height){
+	OverviewFocus()
 	CoordMode, Pixel, Relative
-	ImageSearch, x, y, 0, 0, Width, Height, *50 Resources\Overview.png
+	ImageSearch, x, y, 0, 0, Width, Height, *50 Resources\GY01.png
 	Sleep, 10
+	;MsgBox, %LX% %LY% %width% %height%
+	;MsgBox, ErrorLevel %ErrorLevel%
 	If ErrorLevel = 0
 	{
-		;MsgBox, %x%
-		;MsgBox, %y%
-		x%index% = %x%
-		y%index% = %y%
-		x%index% -= 10
-		y%index% +=10 
+		;MsgBox, % x%index%
+		;MsgBox, % y%index%
+		x%index% := x
+		y%index% := y
+		x%index% -= 5
+		y%index% -= 5
 		;MsgBox, found overview
 		;ClickJump(FoundX, FoundY)
 		;return
+		;MsgBox, % x%index%
+		;MsgBox, % y%index%
+		getOverviewBoolean%index% := 0
+		;MsgBox, % getOverviewBoolean%index% "overview"
 	}
 }
 
